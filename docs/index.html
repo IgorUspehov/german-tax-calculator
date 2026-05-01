@@ -1,1 +1,24 @@
-<!DOCTYPE html><html><head><meta charset="UTF-8"><title>German Tax Calculator</title></head><body><h1>OK</h1></body></html>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Калькулятор налогов Германия</title>
+</head>
+<body>
+  <h1>Калькулятор налогов Германия</h1>
+  <p>Freelancer / Gewerbe — расчёт и дорожная карта.</p>
+  <input id="income" type="number" placeholder="Годовой доход EUR">
+  <button onclick="calc()">Рассчитать</button>
+  <h2 id="result"></h2>
+
+  <script>
+    function calc() {
+      const income = Number(document.getElementById('income').value || 0);
+      const tax = income <= 11604 ? 0 : income * 0.25;
+      const net = income - tax;
+      document.getElementById('result').innerText =
+        'Примерный налог: ' + Math.round(tax) + ' EUR | На руки: ' + Math.round(net) + ' EUR';
+    }
+  </script>
+</body>
+</html>
