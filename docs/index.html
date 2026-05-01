@@ -3,121 +3,64 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tax Calculator Germany</title>
+
+<title>Калькулятор налогов Германия</title>
+
+<meta property="og:title" content="Калькулятор налогов Германия">
+<meta property="og:description" content="Узнай сколько реально останется + получи план действий">
+<meta property="og:image" content="https://via.placeholder.com/1200x630.png?text=Tax+Germany">
 
 <style>
 body{font-family:Arial;margin:0;background:#0f172a;color:#fff;text-align:center}
-.container{max-width:500px;margin:50px auto;padding:20px}
-input,button,select{padding:10px;margin:5px;width:100%;border-radius:6px;border:none}
+.wrap{max-width:500px;margin:40px auto;padding:20px}
+input,button{width:100%;padding:12px;margin:6px 0;border-radius:6px;border:none}
 button{background:#7c3aed;color:#fff;font-weight:bold}
-.lang{position:fixed;top:10px;right:10px}
-.lang button{width:auto;padding:5px 10px;margin:2px;background:#333}
-.card{background:#1e293b;padding:20px;border-radius:10px;margin-top:20px}
+.card{background:#1e293b;padding:20px;border-radius:10px;margin-top:15px}
 .small{font-size:12px;color:#aaa}
 </style>
 </head>
 
 <body>
 
-<div class="lang">
-<button onclick="setLang('ru')">RU</button>
-<button onclick="setLang('de')">DE</button>
-<button onclick="setLang('en')">EN</button>
-</div>
+<div class="wrap">
 
-<div class="container">
-<h1 id="title"></h1>
-<p id="sub"></p>
+<h1>Сколько реально останется?</h1>
+<p>Введи доход — получи цифры + план действий</p>
 
-<input id="income" type="number" placeholder="EUR">
-<button onclick="calc()" id="btn"></button>
+<input id="income" type="number" placeholder="Например: 30000 €">
+
+<button onclick="calc()">Рассчитать</button>
 
 <div class="card" id="result"></div>
 
 <div class="card">
-<h3 id="road"></h3>
-<div id="steps"></div>
+<h3>Что делать дальше</h3>
+<p>1. Регистрация в Finanzamt</p>
+<p>2. Получить Steuernummer</p>
+<p>3. Вести учет доходов</p>
+<p>4. Подать налоговую декларацию</p>
 </div>
 
-<div class="card small">
-<p id="disclaimer"></p>
-<p>Contact: list.uspeh2022@gmail.com</p>
+<div class="card">
+<h3>Хочешь подробный план?</h3>
+<p>Напиши: list.uspeh2022@gmail.com</p>
+</div>
+
+<div class="small">
+Это не налоговая консультация
 </div>
 
 </div>
 
 <script>
-let lang='ru'
-
-const t={
-ru:{
-title:"Калькулятор налогов Германия",
-sub:"Freelancer / Gewerbe — расчет и план действий",
-btn:"Рассчитать",
-road:"Дорожная карта",
-disc:"Это не налоговая консультация",
-steps:[
-"Регистрация в Finanzamt",
-"Получение Steuernummer",
-"Вести учет доходов",
-"Подать Steuererklärung"
-]
-},
-de:{
-title:"Steuerrechner Deutschland",
-sub:"Freelancer / Gewerbe — Berechnung und Plan",
-btn:"Berechnen",
-road:"Roadmap",
-disc:"Keine Steuerberatung",
-steps:[
-"Registrierung beim Finanzamt",
-"Steuernummer erhalten",
-"Einnahmen erfassen",
-"Steuererklärung abgeben"
-]
-},
-en:{
-title:"Tax Calculator Germany",
-sub:"Freelancer / Gewerbe — calculation and plan",
-btn:"Calculate",
-road:"Roadmap",
-disc:"Not tax advice",
-steps:[
-"Register with Finanzamt",
-"Get tax number",
-"Track income",
-"Submit tax return"
-]
-}
-}
-
-function setLang(l){
-lang=l
-render()
-}
-
-function render(){
-document.getElementById('title').innerText=t[lang].title
-document.getElementById('sub').innerText=t[lang].sub
-document.getElementById('btn').innerText=t[lang].btn
-document.getElementById('road').innerText=t[lang].road
-document.getElementById('disclaimer').innerText=t[lang].disc
-
-let s=''
-t[lang].steps.forEach(x=>s+='<p>'+x+'</p>')
-document.getElementById('steps').innerHTML=s
-}
-
 function calc(){
-let income=Number(document.getElementById('income').value||0)
-let tax=income<11604?0:income*0.25
-let net=income-tax
+let income = Number(document.getElementById('income').value||0)
+let tax = income < 11604 ? 0 : income*0.25
+let net = income - tax
 
-document.getElementById('result').innerHTML=
-'Tax: '+Math.round(tax)+' EUR<br>Net: '+Math.round(net)+' EUR'
+document.getElementById('result').innerHTML =
+"<b>Налог:</b> "+Math.round(tax)+" €<br><b>Останется:</b> "+Math.round(net)+" €"
 }
-
-render()
 </script>
 
 </body>
