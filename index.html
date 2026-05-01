@@ -1,1 +1,850 @@
-<!DOCTYPE html><html><head><meta charset="UTF-8"><title>German Tax Calculator</title></head><body><h1>OK</h1></body></html>
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Steuerrechner Deutschland 2026 — Freelancer & Gewerbe</title>
+<meta name="description" content="Realistischer Steuerrechner für Deutschland 2026. Einkommensteuer, Soli, KV/PV, Gewerbesteuer. Für Freiberufler und Gewerbetreibende.">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0f1117;
+    --bg-card: #1a1d28;
+    --bg-input: #232735;
+    --border: #2d3142;
+    --text: #e8eaed;
+    --text-dim: #9aa0b0;
+    --accent: #7c3aed;
+    --accent-hover: #6d28d9;
+    --accent-light: #a78bfa;
+    --success: #10b981;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+  }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+    min-height: 100vh;
+    padding: 20px;
+  }
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .lang-switcher {
+    display: flex;
+    gap: 4px;
+    background: var(--bg-card);
+    padding: 4px;
+    border-radius: 8px;
+  }
+  .lang-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-dim);
+    padding: 6px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 13px;
+    transition: all 0.2s;
+  }
+  .lang-btn.active {
+    background: var(--accent);
+    color: white;
+  }
+  .lang-btn:hover:not(.active) {
+    color: var(--text);
+  }
+  h1 {
+    font-size: 28px;
+    margin-bottom: 8px;
+    line-height: 1.2;
+  }
+  .subtitle {
+    color: var(--text-dim);
+    margin-bottom: 24px;
+    font-size: 15px;
+  }
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 16px;
+  }
+  .card h2 {
+    font-size: 18px;
+    margin-bottom: 16px;
+  }
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  @media (max-width: 600px) {
+    .form-grid { grid-template-columns: 1fr; }
+    h1 { font-size: 22px; }
+    .card { padding: 18px; }
+  }
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .field label {
+    font-size: 13px;
+    color: var(--text-dim);
+    font-weight: 500;
+  }
+  .field input, .field select {
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-family: inherit;
+    transition: border-color 0.15s;
+  }
+  .field input:focus, .field select:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+  .field .hint {
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+  .toggle-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 4px;
+  }
+  .toggle {
+    flex: 1;
+    min-width: 140px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    text-align: center;
+    transition: all 0.15s;
+  }
+  .toggle:hover { color: var(--text); }
+  .toggle.active {
+    background: rgba(124, 58, 237, 0.15);
+    border-color: var(--accent);
+    color: var(--accent-light);
+  }
+  .checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px;
+    background: var(--bg-input);
+    border-radius: 8px;
+    cursor: pointer;
+    user-select: none;
+    border: 1px solid var(--border);
+  }
+  .checkbox-row input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--accent);
+    cursor: pointer;
+  }
+  .checkbox-row label {
+    cursor: pointer;
+    flex: 1;
+    font-size: 14px;
+  }
+  .results {
+    background: linear-gradient(135deg, #1e1b3a 0%, #1a1d28 100%);
+    border: 1px solid var(--accent);
+  }
+  .summary-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+  .summary-box {
+    background: rgba(0,0,0,0.25);
+    padding: 16px;
+    border-radius: 10px;
+  }
+  .summary-box .label {
+    font-size: 12px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+  }
+  .summary-box .value {
+    font-size: 22px;
+    font-weight: 700;
+  }
+  .summary-box.net .value { color: var(--success); }
+  .summary-box.tax .value { color: var(--warning); }
+  .breakdown {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 16px;
+  }
+  .breakdown-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 12px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 6px;
+    font-size: 14px;
+  }
+  .breakdown-row.total {
+    background: rgba(124, 58, 237, 0.2);
+    font-weight: 600;
+  }
+  .breakdown-row .name { color: var(--text-dim); }
+  .breakdown-row .amount { font-weight: 500; font-variant-numeric: tabular-nums; }
+  .roadmap {
+    list-style: none;
+    counter-reset: step;
+  }
+  .roadmap li {
+    counter-increment: step;
+    padding: 12px 0 12px 44px;
+    position: relative;
+    border-bottom: 1px solid var(--border);
+  }
+  .roadmap li:last-child { border-bottom: none; }
+  .roadmap li::before {
+    content: counter(step);
+    position: absolute;
+    left: 0;
+    top: 12px;
+    width: 32px;
+    height: 32px;
+    background: var(--accent);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+  }
+  .roadmap .step-title {
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .roadmap .step-desc {
+    font-size: 13px;
+    color: var(--text-dim);
+  }
+  .disclaimer {
+    background: rgba(245, 158, 11, 0.1);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    color: #fbbf24;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    margin-bottom: 20px;
+  }
+  .disclaimer strong { color: #fcd34d; }
+  footer {
+    text-align: center;
+    margin-top: 32px;
+    padding: 20px;
+    color: var(--text-dim);
+    font-size: 13px;
+  }
+  footer a { color: var(--accent-light); text-decoration: none; }
+  .hidden { display: none; }
+  .pension-options {
+    display: none;
+  }
+  .pension-options.show { display: block; }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div style="display:flex; align-items:center; gap:12px;">
+      <div style="font-size:32px;">🇩🇪</div>
+      <div>
+        <h1 data-i18n="title">Steuerrechner Deutschland 2026</h1>
+      </div>
+    </div>
+    <div class="lang-switcher">
+      <button class="lang-btn active" data-lang="de">DE</button>
+      <button class="lang-btn" data-lang="en">EN</button>
+      <button class="lang-btn" data-lang="ru">RU</button>
+    </div>
+  </header>
+
+  <p class="subtitle" data-i18n="subtitle">Für Freiberufler und Gewerbetreibende. Realistische Berechnung mit ESt, Soli, KV/PV und Gewerbesteuer.</p>
+
+  <div class="disclaimer">
+    <strong data-i18n="disclaimer_title">Keine Steuerberatung.</strong>
+    <span data-i18n="disclaimer_text">Die Berechnung ist eine unverbindliche Orientierung. Konsultiere für verbindliche Aussagen einen Steuerberater.</span>
+  </div>
+
+  <div class="card">
+    <h2 data-i18n="form_title">Eingaben</h2>
+
+    <div class="field" style="margin-bottom: 16px;">
+      <label data-i18n="activity_label">Tätigkeitsart</label>
+      <div class="toggle-row" id="activityToggle">
+        <button class="toggle active" data-value="freelancer" data-i18n="activity_freelancer">Freiberufler</button>
+        <button class="toggle" data-value="gewerbe" data-i18n="activity_gewerbe">Gewerbe</button>
+      </div>
+    </div>
+
+    <div class="field" style="margin-bottom: 16px;">
+      <label data-i18n="status_label">Familienstand</label>
+      <div class="toggle-row" id="statusToggle">
+        <button class="toggle active" data-value="single" data-i18n="status_single">Alleinstehend</button>
+        <button class="toggle" data-value="married" data-i18n="status_married">Verheiratet (Splitting)</button>
+      </div>
+    </div>
+
+    <div class="form-grid">
+      <div class="field">
+        <label data-i18n="income_label">Jahresumsatz / Einkommen (€)</label>
+        <input type="number" id="income" placeholder="60000" min="0" step="100">
+        <span class="hint" data-i18n="income_hint">Brutto vor Steuern und Ausgaben</span>
+      </div>
+
+      <div class="field">
+        <label data-i18n="expenses_label">Betriebsausgaben pro Jahr (€)</label>
+        <input type="number" id="expenses" placeholder="6000" min="0" step="100">
+        <span class="hint" data-i18n="expenses_hint">Büro, Software, Hardware, Reisen usw.</span>
+      </div>
+
+      <div class="field" id="hebesatzField">
+        <label data-i18n="hebesatz_label">Gewerbesteuer-Hebesatz (%)</label>
+        <input type="number" id="hebesatz" placeholder="490" min="200" max="900" value="490">
+        <span class="hint" data-i18n="hebesatz_hint">München: 490, Berlin: 410, Hamburg: 470, Frankfurt: 460</span>
+      </div>
+
+      <div class="field">
+        <label data-i18n="health_label">Krankenversicherung</label>
+        <select id="healthType">
+          <option value="gkv_avg" data-i18n="health_gkv_avg">GKV (gesetzlich, ~16.3%)</option>
+          <option value="gkv_low" data-i18n="health_gkv_low">GKV mit niedrigem Zusatzbeitrag (~15.5%)</option>
+          <option value="pkv_low" data-i18n="health_pkv_low">PKV (privat) — ~400 €/Monat</option>
+          <option value="pkv_high" data-i18n="health_pkv_high">PKV (privat) — ~700 €/Monat</option>
+          <option value="custom" data-i18n="health_custom">Eigener Betrag pro Monat</option>
+        </select>
+      </div>
+
+      <div class="field hidden" id="customHealthField">
+        <label data-i18n="custom_health_label">KV+PV pro Monat (€)</label>
+        <input type="number" id="customHealth" placeholder="500" min="0" step="10">
+      </div>
+    </div>
+
+    <div style="margin-top: 16px; display: flex; flex-direction: column; gap: 10px;">
+      <div class="checkbox-row">
+        <input type="checkbox" id="church">
+        <label for="church" data-i18n="church_label">Kirchensteuer (9% — Bayern: 8%)</label>
+      </div>
+      <div class="checkbox-row">
+        <input type="checkbox" id="pension">
+        <label for="pension" data-i18n="pension_label">Freiwillige Rentenversicherung (18.6% bis Beitragsbemessungsgrenze)</label>
+      </div>
+    </div>
+  </div>
+
+  <div class="card results" id="results" style="display:none;">
+    <h2 data-i18n="results_title">Ergebnis</h2>
+    <div class="summary-row">
+      <div class="summary-box net">
+        <div class="label" data-i18n="net_label">Netto pro Jahr</div>
+        <div class="value" id="netAnnual">— €</div>
+      </div>
+      <div class="summary-box net">
+        <div class="label" data-i18n="net_month_label">Netto pro Monat</div>
+        <div class="value" id="netMonth">— €</div>
+      </div>
+    </div>
+    <div class="summary-row">
+      <div class="summary-box tax">
+        <div class="label" data-i18n="total_burden_label">Gesamtbelastung</div>
+        <div class="value" id="totalBurden">— €</div>
+      </div>
+      <div class="summary-box tax">
+        <div class="label" data-i18n="effective_rate_label">Effektive Belastung</div>
+        <div class="value" id="effectiveRate">— %</div>
+      </div>
+    </div>
+
+    <h3 style="margin-top: 8px; margin-bottom: 12px; font-size: 15px; color: var(--text-dim);" data-i18n="breakdown_title">Aufschlüsselung</h3>
+    <div class="breakdown" id="breakdown"></div>
+  </div>
+
+  <div class="card">
+    <h2 data-i18n="roadmap_title">Aktionsplan</h2>
+    <ol class="roadmap" id="roadmap"></ol>
+  </div>
+
+  <footer>
+    <p data-i18n="footer">Erstellt von Ihor Kriazhev · 2026 · <a href="https://igoruspehov.github.io/polymer-consult/">Polymer Consulting</a></p>
+  </footer>
+</div>
+
+<script>
+const I18N = {
+  de: {
+    title: "Steuerrechner Deutschland 2026",
+    subtitle: "Für Freiberufler und Gewerbetreibende. Realistische Berechnung mit ESt, Soli, KV/PV und Gewerbesteuer.",
+    disclaimer_title: "Keine Steuerberatung.",
+    disclaimer_text: "Die Berechnung ist eine unverbindliche Orientierung. Konsultiere für verbindliche Aussagen einen Steuerberater.",
+    form_title: "Eingaben",
+    activity_label: "Tätigkeitsart",
+    activity_freelancer: "Freiberufler",
+    activity_gewerbe: "Gewerbe",
+    status_label: "Familienstand",
+    status_single: "Alleinstehend",
+    status_married: "Verheiratet (Splitting)",
+    income_label: "Jahresumsatz / Einkommen (€)",
+    income_hint: "Brutto vor Steuern und Ausgaben",
+    expenses_label: "Betriebsausgaben pro Jahr (€)",
+    expenses_hint: "Büro, Software, Hardware, Reisen usw.",
+    hebesatz_label: "Gewerbesteuer-Hebesatz (%)",
+    hebesatz_hint: "München: 490, Berlin: 410, Hamburg: 470, Frankfurt: 460",
+    health_label: "Krankenversicherung",
+    health_gkv_avg: "GKV (gesetzlich, ~16.3%)",
+    health_gkv_low: "GKV mit niedrigem Zusatzbeitrag (~15.5%)",
+    health_pkv_low: "PKV (privat) — ~400 €/Monat",
+    health_pkv_high: "PKV (privat) — ~700 €/Monat",
+    health_custom: "Eigener Betrag pro Monat",
+    custom_health_label: "KV+PV pro Monat (€)",
+    church_label: "Kirchensteuer (9% — Bayern: 8%)",
+    pension_label: "Freiwillige Rentenversicherung (18.6% bis Beitragsbemessungsgrenze)",
+    results_title: "Ergebnis",
+    net_label: "Netto pro Jahr",
+    net_month_label: "Netto pro Monat",
+    total_burden_label: "Gesamtbelastung",
+    effective_rate_label: "Effektive Belastung",
+    breakdown_title: "Aufschlüsselung",
+    profit: "Gewinn vor Steuern",
+    income_tax: "Einkommensteuer",
+    soli: "Solidaritätszuschlag",
+    church: "Kirchensteuer",
+    gewerbe: "Gewerbesteuer",
+    gewerbe_credit: "Anrechnung Gewerbesteuer",
+    health: "Kranken- und Pflegeversicherung",
+    pension_line: "Rentenversicherung",
+    total_tax: "Summe aller Abgaben",
+    roadmap_title: "Aktionsplan",
+    footer: "Erstellt von Ihor Kriazhev · 2026",
+    enter_income: "Bitte ein Jahreseinkommen eingeben",
+    steps_freelancer: [
+      ["Beim Finanzamt anmelden", "Fragebogen zur steuerlichen Erfassung über ELSTER ausfüllen. Steuernummer wird in 2–6 Wochen zugewiesen."],
+      ["Kleinunternehmer prüfen", "Bis 25.000 € Umsatz im Vorjahr — keine Umsatzsteuer (§19 UStG). Sonst monatlich/quartalsweise USt-Voranmeldung."],
+      ["Buchhaltung einrichten", "Einnahmen-Überschuss-Rechnung (EÜR) reicht. Belege 10 Jahre aufbewahren. Tools: lexoffice, sevDesk, Buchhaltungsbutler."],
+      ["Krankenversicherung melden", "Selbstständige müssen sich aktiv versichern — GKV freiwillig oder PKV. Mindestbeitrag GKV ca. 220 €/Monat."],
+      ["Steuererklärung abgeben", "Bis 31. Juli des Folgejahres (mit Steuerberater: bis 31. Mai übernächstes Jahr). Über ELSTER oder Software."],
+      ["Vorauszahlungen einplanen", "Finanzamt setzt nach erstem Bescheid quartalsweise Vorauszahlungen fest (10.3., 10.6., 10.9., 10.12.)."]
+    ],
+    steps_gewerbe: [
+      ["Gewerbe anmelden", "Beim Gewerbeamt der Stadt — ca. 20–60 €. Finanzamt und IHK werden automatisch informiert."],
+      ["Steuerliche Erfassung", "Fragebogen über ELSTER. Steuernummer und ggf. USt-IdNr. erhalten."],
+      ["IHK-Mitgliedschaft", "Pflichtbeitrag — meist 30–500 €/Jahr je nach Gewinn. Bei niedrigem Gewinn oft befreit."],
+      ["Buchhaltung wählen", "Bis 80.000 € Gewinn / 800.000 € Umsatz: EÜR. Darüber: doppelte Buchführung mit Bilanz."],
+      ["Gewerbesteuer beachten", "Freibetrag 24.500 €. Hebesatz je nach Stadt. Vorauszahlungen quartalsweise (15.2., 15.5., 15.8., 15.11.)."],
+      ["Steuererklärung abgeben", "Einkommensteuer + Gewerbesteuer + ggf. USt-Erklärung. Frist: 31. Juli (oder mit Berater später)."]
+    ]
+  },
+  en: {
+    title: "Germany Tax Calculator 2026",
+    subtitle: "For freelancers and trade businesses. Realistic calculation with income tax, solidarity surcharge, health insurance and trade tax.",
+    disclaimer_title: "Not tax advice.",
+    disclaimer_text: "This calculation is for orientation only. Consult a tax advisor (Steuerberater) for binding decisions.",
+    form_title: "Inputs",
+    activity_label: "Activity type",
+    activity_freelancer: "Freelancer (Freiberufler)",
+    activity_gewerbe: "Trade (Gewerbe)",
+    status_label: "Marital status",
+    status_single: "Single",
+    status_married: "Married (joint filing)",
+    income_label: "Annual revenue / income (€)",
+    income_hint: "Gross, before taxes and expenses",
+    expenses_label: "Business expenses per year (€)",
+    expenses_hint: "Office, software, hardware, travel etc.",
+    hebesatz_label: "Trade tax multiplier (%)",
+    hebesatz_hint: "Munich: 490, Berlin: 410, Hamburg: 470, Frankfurt: 460",
+    health_label: "Health insurance",
+    health_gkv_avg: "Public (GKV, ~16.3%)",
+    health_gkv_low: "Public (GKV) with low surcharge (~15.5%)",
+    health_pkv_low: "Private (PKV) — ~400 €/month",
+    health_pkv_high: "Private (PKV) — ~700 €/month",
+    health_custom: "Custom amount per month",
+    custom_health_label: "Health + care insurance per month (€)",
+    church_label: "Church tax (9% — Bavaria: 8%)",
+    pension_label: "Voluntary pension insurance (18.6% up to contribution ceiling)",
+    results_title: "Result",
+    net_label: "Net per year",
+    net_month_label: "Net per month",
+    total_burden_label: "Total burden",
+    effective_rate_label: "Effective rate",
+    breakdown_title: "Breakdown",
+    profit: "Profit before taxes",
+    income_tax: "Income tax",
+    soli: "Solidarity surcharge",
+    church: "Church tax",
+    gewerbe: "Trade tax",
+    gewerbe_credit: "Trade tax credit",
+    health: "Health and care insurance",
+    pension_line: "Pension insurance",
+    total_tax: "Total deductions",
+    roadmap_title: "Action plan",
+    footer: "Created by Ihor Kriazhev · 2026",
+    enter_income: "Please enter an annual income",
+    steps_freelancer: [
+      ["Register with Finanzamt", "Submit the tax registration questionnaire (Fragebogen zur steuerlichen Erfassung) via ELSTER. Tax number arrives in 2–6 weeks."],
+      ["Check small business status", "Up to €25,000 revenue in previous year — no VAT (§19 UStG). Otherwise monthly/quarterly VAT pre-registration."],
+      ["Set up bookkeeping", "Simple income-expense statement (EÜR) is sufficient. Keep receipts 10 years. Tools: lexoffice, sevDesk, Buchhaltungsbutler."],
+      ["Register health insurance", "Self-employed must actively insure — public (GKV) voluntary or private (PKV). GKV minimum ~€220/month."],
+      ["File tax return", "By July 31 of following year (with tax advisor: by May 31 of year after that). Via ELSTER or tax software."],
+      ["Plan advance payments", "After first assessment Finanzamt sets quarterly advance payments (Mar 10, Jun 10, Sep 10, Dec 10)."]
+    ],
+    steps_gewerbe: [
+      ["Register the trade", "At the Gewerbeamt of your city — about €20–60. Finanzamt and IHK get notified automatically."],
+      ["Tax registration", "Submit Fragebogen via ELSTER. Receive tax number and (if needed) VAT ID."],
+      ["IHK membership", "Mandatory fee — usually €30–500/year depending on profit. Often waived at low profit."],
+      ["Choose bookkeeping", "Up to €80k profit / €800k revenue: EÜR. Above: double-entry bookkeeping with balance sheet."],
+      ["Consider trade tax", "Allowance €24,500. Multiplier depends on city. Quarterly prepayments (Feb 15, May 15, Aug 15, Nov 15)."],
+      ["File tax return", "Income tax + trade tax + VAT return if applicable. Deadline: July 31 (later with advisor)."]
+    ]
+  },
+  ru: {
+    title: "Налоговый калькулятор Германия 2026",
+    subtitle: "Для фрилансеров и Gewerbe. Реалистичный расчёт: подоходный, Soli, страховки, Gewerbesteuer.",
+    disclaimer_title: "Не является налоговой консультацией.",
+    disclaimer_text: "Расчёт носит ориентировочный характер. Для обязывающих решений обратитесь к Steuerberater.",
+    form_title: "Параметры",
+    activity_label: "Тип деятельности",
+    activity_freelancer: "Freiberufler (фриланс)",
+    activity_gewerbe: "Gewerbe (промысел)",
+    status_label: "Семейное положение",
+    status_single: "Не женат / не замужем",
+    status_married: "В браке (Splitting)",
+    income_label: "Годовой доход / выручка (€)",
+    income_hint: "Брутто, до налогов и расходов",
+    expenses_label: "Расходы бизнеса в год (€)",
+    expenses_hint: "Офис, ПО, оборудование, поездки и т.д.",
+    hebesatz_label: "Hebesatz (Gewerbesteuer, %)",
+    hebesatz_hint: "Мюнхен: 490, Берлин: 410, Гамбург: 470, Франкфурт: 460",
+    health_label: "Медицинская страховка",
+    health_gkv_avg: "GKV (гос., ~16.3%)",
+    health_gkv_low: "GKV с низким Zusatzbeitrag (~15.5%)",
+    health_pkv_low: "PKV (частная) — ~400 €/мес",
+    health_pkv_high: "PKV (частная) — ~700 €/мес",
+    health_custom: "Указать свою сумму в месяц",
+    custom_health_label: "KV+PV в месяц (€)",
+    church_label: "Церковный налог (9% — Бавария: 8%)",
+    pension_label: "Добровольный пенсионный взнос (18.6% до потолка)",
+    results_title: "Результат",
+    net_label: "Чистыми в год",
+    net_month_label: "Чистыми в месяц",
+    total_burden_label: "Общая нагрузка",
+    effective_rate_label: "Эффективная ставка",
+    breakdown_title: "Разбивка",
+    profit: "Прибыль до налогов",
+    income_tax: "Подоходный налог (ESt)",
+    soli: "Solidaritätszuschlag",
+    church: "Церковный налог",
+    gewerbe: "Gewerbesteuer",
+    gewerbe_credit: "Зачёт Gewerbesteuer (§35)",
+    health: "Медицинская и Pflege страховка",
+    pension_line: "Пенсионное страхование",
+    total_tax: "Итого отчислений",
+    roadmap_title: "Что делать",
+    footer: "Создал Ihor Kriazhev · 2026",
+    enter_income: "Введите годовой доход",
+    steps_freelancer: [
+      ["Регистрация в Finanzamt", "Заполнить Fragebogen zur steuerlichen Erfassung через ELSTER. Steuernummer придёт через 2–6 недель."],
+      ["Проверить статус Kleinunternehmer", "До 25 000 € оборота в прошлом году — без НДС (§19 UStG). Иначе ежемесячная/квартальная подача USt-Voranmeldung."],
+      ["Завести учёт", "Достаточно EÜR (доходы минус расходы). Чеки хранить 10 лет. Сервисы: lexoffice, sevDesk, Buchhaltungsbutler."],
+      ["Оформить медстраховку", "Самозанятый сам страхуется — GKV добровольно или PKV. Минимум GKV ~220 €/мес."],
+      ["Сдать декларацию", "До 31 июля следующего года (со Steuerberater — до 31 мая через год). Через ELSTER или софт."],
+      ["Авансовые платежи", "После первого Steuerbescheid Finanzamt назначит квартальные авансы (10.3, 10.6, 10.9, 10.12)."]
+    ],
+    steps_gewerbe: [
+      ["Зарегистрировать Gewerbe", "В Gewerbeamt города — 20–60 €. Finanzamt и IHK уведомят автоматически."],
+      ["Налоговая регистрация", "Fragebogen через ELSTER. Получить Steuernummer и USt-IdNr. (если нужен)."],
+      ["Членство в IHK", "Обязательный взнос — 30–500 €/год в зависимости от прибыли. При малой прибыли часто освобождают."],
+      ["Выбрать учёт", "До 80 000 € прибыли / 800 000 € оборота — EÜR. Выше — двойная бухгалтерия с балансом."],
+      ["Учесть Gewerbesteuer", "Freibetrag 24 500 €. Hebesatz зависит от города. Авансы поквартально (15.2, 15.5, 15.8, 15.11)."],
+      ["Сдать декларации", "Подоходная + Gewerbesteuer + USt при необходимости. Срок: 31 июля (позже со Steuerberater)."]
+    ]
+  }
+};
+
+let currentLang = 'de';
+let activity = 'freelancer';
+let status = 'single';
+
+// ============ TAX LOGIC 2026 ============
+// Einkommensteuer: progressive scale per §32a EStG.
+// 2026 values projected from 2025 official figures (Inflationsausgleichsgesetz adjustments).
+
+function calcIncomeTax(zvE, married) {
+  // For married couples (splitting): tax on zvE/2, then ×2
+  if (married) return 2 * calcIncomeTax(zvE / 2, false);
+  if (zvE <= 0) return 0;
+
+  // 2026 brackets (projected — Grundfreibetrag rises; using realistic figures)
+  const grundfreibetrag = 12348;       // tax-free basic allowance
+  const z1End = 17443;                  // end of first progressive zone
+  const z2End = 68480;                  // end of second progressive zone
+  const z3End = 277826;                 // start of "Reichensteuer"
+
+  if (zvE <= grundfreibetrag) return 0;
+
+  if (zvE <= z1End) {
+    // Zone 1: linearly progressive from 14% to ~24%
+    const y = (zvE - grundfreibetrag) / 10000;
+    return (932.30 * y + 1400) * y;
+  }
+  if (zvE <= z2End) {
+    // Zone 2: linearly progressive from ~24% to 42%
+    const z = (zvE - z1End) / 10000;
+    return (176.64 * z + 2397) * z + 1015.13;
+  }
+  if (zvE <= z3End) {
+    // Zone 3: flat 42%
+    return 0.42 * zvE - 10911.92;
+  }
+  // Zone 4: flat 45% ("Reichensteuer")
+  return 0.45 * zvE - 19246.67;
+}
+
+function calcSoli(incomeTax, married) {
+  // Soli only above exemption: ~18,130 € (single) / ~36,260 € (married) for 2026
+  const freigrenze = married ? 36260 : 18130;
+  if (incomeTax <= freigrenze) return 0;
+
+  // Milderungszone: gradually phases in to full 5.5%
+  const full = incomeTax * 0.055;
+  const milderung = (incomeTax - freigrenze) * 0.119; // ~11.9% of excess
+  return Math.min(full, milderung);
+}
+
+function calcGewerbeSteuer(profit, hebesatz) {
+  const freibetrag = 24500;
+  const taxBase = Math.max(0, profit - freibetrag);
+  const messbetrag = taxBase * 0.035; // Steuermesszahl 3.5%
+  return messbetrag * (hebesatz / 100);
+}
+
+function calcGewerbeCredit(profit) {
+  // §35 EStG: trade tax credited at 4.0× Steuermesszahl against income tax
+  const freibetrag = 24500;
+  const taxBase = Math.max(0, profit - freibetrag);
+  const messbetrag = taxBase * 0.035;
+  return messbetrag * 4.0;
+}
+
+function calcHealthInsurance(profit, type, customMonthly) {
+  // GKV: ~14.6% base + ~1.7% Zusatzbeitrag + ~3.4-4% Pflege
+  // Beitragsbemessungsgrenze 2026: ~5,512 €/month → 66,150 €/year
+  const ceiling = 66150;
+  const base = Math.min(Math.max(profit, 13230), ceiling); // floor: minimum contribution
+  switch (type) {
+    case 'gkv_avg':  return base * 0.163;          // 14.6 + 1.7
+    case 'gkv_low':  return base * 0.155;
+    case 'pkv_low':  return 400 * 12;
+    case 'pkv_high': return 700 * 12;
+    case 'custom':   return (customMonthly || 0) * 12;
+    default:         return base * 0.163;
+  }
+}
+
+function calcPension(profit) {
+  // Voluntary: 18.6% up to Beitragsbemessungsgrenze (~96,600 € West / 2026 projection)
+  const ceiling = 96600;
+  return Math.min(profit, ceiling) * 0.186;
+}
+
+// ============ MAIN CALC ============
+function calculate() {
+  const t = I18N[currentLang];
+  const income = parseFloat(document.getElementById('income').value) || 0;
+  const expenses = parseFloat(document.getElementById('expenses').value) || 0;
+  const hebesatz = parseFloat(document.getElementById('hebesatz').value) || 490;
+  const married = (status === 'married');
+  const isGewerbe = (activity === 'gewerbe');
+  const healthType = document.getElementById('healthType').value;
+  const customHealth = parseFloat(document.getElementById('customHealth').value) || 0;
+  const churchOn = document.getElementById('church').checked;
+  const pensionOn = document.getElementById('pension').checked;
+
+  if (income <= 0) {
+    document.getElementById('results').style.display = 'none';
+    return;
+  }
+
+  const profit = Math.max(0, income - expenses);
+
+  // Health insurance reduces taxable income (Vorsorgeaufwendungen — simplified deduction)
+  const health = calcHealthInsurance(profit, healthType, customHealth);
+  const pension = pensionOn ? calcPension(profit) : 0;
+
+  // Approximation: deduct ~80% of health + pension as Vorsorgeaufwendungen, capped
+  const vorsorgeDeduction = Math.min(health + pension, married ? 56000 : 28000) * 0.85;
+
+  // Gewerbesteuer (only for Gewerbe)
+  const gewerbe = isGewerbe ? calcGewerbeSteuer(profit, hebesatz) : 0;
+  const gewerbeCredit = isGewerbe ? calcGewerbeCredit(profit) : 0;
+
+  // Taxable income (zu versteuerndes Einkommen)
+  const zvE = Math.max(0, profit - vorsorgeDeduction);
+
+  // Income tax
+  let incomeTax = calcIncomeTax(zvE, married);
+
+  // Apply Gewerbesteuer credit (capped at actual Gewerbesteuer paid and income tax)
+  const actualCredit = Math.min(gewerbeCredit, gewerbe, incomeTax);
+  const incomeTaxAfterCredit = Math.max(0, incomeTax - actualCredit);
+
+  // Soli on income tax (after credit)
+  const soli = calcSoli(incomeTaxAfterCredit, married);
+
+  // Church tax: 9% (8% in Bavaria/BW) of income tax — using 9%
+  const church = churchOn ? incomeTaxAfterCredit * 0.09 : 0;
+
+  // Total
+  const totalTax = incomeTaxAfterCredit + soli + church + gewerbe + health + pension;
+  const net = profit - totalTax;
+  const effectiveRate = profit > 0 ? (totalTax / profit) * 100 : 0;
+
+  // ============ RENDER ============
+  document.getElementById('results').style.display = 'block';
+  document.getElementById('netAnnual').textContent = fmt(net);
+  document.getElementById('netMonth').textContent = fmt(net / 12);
+  document.getElementById('totalBurden').textContent = fmt(totalTax);
+  document.getElementById('effectiveRate').textContent = effectiveRate.toFixed(1) + ' %';
+
+  const breakdown = document.getElementById('breakdown');
+  breakdown.innerHTML = '';
+  addBreakdown(breakdown, t.profit, profit, false);
+  addBreakdown(breakdown, t.income_tax, -incomeTax, true);
+  if (isGewerbe) {
+    addBreakdown(breakdown, t.gewerbe, -gewerbe, true);
+    if (actualCredit > 0) addBreakdown(breakdown, t.gewerbe_credit, +actualCredit, false);
+  }
+  if (soli > 0) addBreakdown(breakdown, t.soli, -soli, true);
+  if (church > 0) addBreakdown(breakdown, t.church, -church, true);
+  addBreakdown(breakdown, t.health, -health, true);
+  if (pension > 0) addBreakdown(breakdown, t.pension_line, -pension, true);
+
+  const totalRow = document.createElement('div');
+  totalRow.className = 'breakdown-row total';
+  totalRow.innerHTML = `<span class="name">${t.total_tax}</span><span class="amount">${fmt(totalTax)}</span>`;
+  breakdown.appendChild(totalRow);
+}
+
+function addBreakdown(parent, name, amount, isNegative) {
+  const row = document.createElement('div');
+  row.className = 'breakdown-row';
+  const sign = amount > 0 && isNegative === false ? '+' : (amount < 0 ? '−' : '');
+  row.innerHTML = `<span class="name">${name}</span><span class="amount">${sign}${fmt(Math.abs(amount))}</span>`;
+  parent.appendChild(row);
+}
+
+function fmt(v) {
+  if (!isFinite(v)) return '— €';
+  return new Intl.NumberFormat(currentLang === 'ru' ? 'ru-RU' : (currentLang === 'en' ? 'en-US' : 'de-DE'),
+    { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(v);
+}
+
+// ============ I18N ============
+function setLang(lang) {
+  currentLang = lang;
+  document.documentElement.lang = lang;
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.dataset.lang === lang));
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (I18N[lang][key]) el.textContent = I18N[lang][key];
+  });
+  // Update select options
+  document.querySelectorAll('#healthType option').forEach(opt => {
+    const key = opt.getAttribute('data-i18n');
+    if (I18N[lang][key]) opt.textContent = I18N[lang][key];
+  });
+  renderRoadmap();
+  calculate();
+}
+
+function renderRoadmap() {
+  const t = I18N[currentLang];
+  const list = document.getElementById('roadmap');
+  list.innerHTML = '';
+  const steps = activity === 'gewerbe' ? t.steps_gewerbe : t.steps_freelancer;
+  steps.forEach(([title, desc]) => {
+    const li = document.createElement('li');
+    li.innerHTML = `<div class="step-title">${title}</div><div class="step-desc">${desc}</div>`;
+    list.appendChild(li);
+  });
+}
+
+// ============ EVENTS ============
+document.querySelectorAll('.lang-btn').forEach(b => {
+  b.addEventListener('click', () => setLang(b.dataset.lang));
+});
+
+document.querySelectorAll('#activityToggle .toggle').forEach(b => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('#activityToggle .toggle').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    activity = b.dataset.value;
+    document.getElementById('hebesatzField').style.display = activity === 'gewerbe' ? '' : 'none';
+    renderRoadmap();
+    calculate();
+  });
+});
+
+document.querySelectorAll('#statusToggle .toggle').forEach(b => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('#statusToggle .toggle').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    status = b.dataset.value;
+    calculate();
+  });
+});
+
+document.getElementById('healthType').addEventListener('change', e => {
+  document.getElementById('customHealthField').classList.toggle('hidden', e.target.value !== 'custom');
+  calculate();
+});
+
+['income','expenses','hebesatz','customHealth','church','pension'].forEach(id => {
+  document.getElementById(id).addEventListener('input', calculate);
+  document.getElementById(id).addEventListener('change', calculate);
+});
+
+// Initial
+document.getElementById('hebesatzField').style.display = 'none';
+setLang('de');
+</script>
+</body>
+</html>
